@@ -8,7 +8,7 @@
 </h1>
 
 <h3>
-  This app uses the TensorFlow.js MobileNet implementation to do prediction on images. You can copy past images (control+c, control+v) or you can drag them in from a CORS permission enabled site. Stylized with Material UI card component. This app uses WebWorkers to segment out the MobileNet logic and maintain maximum UI responsiveness.
+  This app uses the TensorFlow.js MobileNet implementation to do prediction on images. You can copy paste images (control+c, control+v) or you can drag them in from a CORS permission enabled site. Stylized with Material UI card component. This app uses WebWorkers to segment out the MobileNet logic and maintain maximum UI responsiveness.
  </h3
 
 ## 🚀 Quick start
