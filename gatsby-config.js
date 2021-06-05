@@ -1,6 +1,7 @@
 module.exports = {
-  siteMetadata: {
-    title: "MobileNet Image Classifier",
-  },
-  plugins: [],
+	siteMetadata: {
+		title: 'MobileNet Image Classifier',
+	},
+	pathPrefix: '/CellProfilerAnalystForTheWeb',
+	plugins: [],
 };

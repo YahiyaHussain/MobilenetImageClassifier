@@ -1,27 +1,30 @@
 {
-  "name": "mobile-net-image-classifier",
-  "version": "1.0.0",
-  "private": true,
-  "description": "MobileNet Image Classifier",
-  "author": "YahtzeeRage",
-  "keywords": [
-    "gatsby"
-  ],
-  "scripts": {
-    "develop": "gatsby develop",
-    "start": "gatsby develop",
-    "build": "gatsby build",
-    "serve": "gatsby serve",
-    "clean": "gatsby clean"
-  },
-  "dependencies": {
-    "@material-ui/core": "^4.11.4",
-    "@material-ui/icons": "^4.11.2",
-    "@tensorflow/tfjs": "^3.7.0",
-    "gatsby": "^3.6.2",
-    "joi": "^17.4.0",
-    "react": "^17.0.1",
-    "react-dom": "^17.0.1",
-    "uuid": "^8.3.2"
-  }
+	"homepage": "http://YahtzeeRage.github.io/MobilenetImageClassifier",
+	"name": "mobile-net-image-classifier",
+	"version": "1.0.0",
+	"private": true,
+	"description": "MobileNet Image Classifier",
+	"author": "YahtzeeRage",
+	"keywords": [
+		"gatsby"
+	],
+	"scripts": {
+		"develop": "gatsby develop",
+		"start": "gatsby develop",
+		"build": "gatsby build",
+		"serve": "gatsby serve",
+		"clean": "gatsby clean",
+		"predeploy": "yarn build",
+		"deploy": "gh-pages -d public"
+	},
+	"dependencies": {
+		"@material-ui/core": "^4.11.4",
+		"@material-ui/icons": "^4.11.2",
+		"@tensorflow/tfjs": "^3.7.0",
+		"gatsby": "^3.6.2",
+		"joi": "^17.4.0",
+		"react": "^17.0.1",
+		"react-dom": "^17.0.1",
+		"uuid": "^8.3.2"
+	}
 }
