@@ -5,7 +5,11 @@ import CardHeader from '@material-ui/core/CardHeader';
 import CardMedia from '@material-ui/core/CardMedia';
 import CardContent from '@material-ui/core/CardContent';
 import Typography from '@material-ui/core/Typography';
+import CircularProgress from '@material-ui/core/CircularProgress';
 import { v4 as uuidv4 } from 'uuid';
+
+import * as tf from '@tensorflow/tfjs';
+import * as mobilenet from '@tensorflow-models/mobilenet';
 
 const useStyles = makeStyles((theme) => ({
 	root: {
@@ -41,35 +45,34 @@ const workerAction = async function (worker, action, data) {
 		worker.postMessage({ action, ...data, uuid: UUID });
 	});
 };
-async function predictImage(image, worker) {
-	const canvas = document.createElement('canvas');
-	const context = canvas.getContext('2d');
-	context.drawImage(image, 0, 0);
-	const imageData = context.getImageData(0, 0, image.width, image.height);
-	return workerAction(worker, 'predict', { imageData }).then((message) => {
-		const { prediction } = message.data;
-
-		console.log(prediction);
-		return prediction;
-	});
-}
 
 // markup
 const IndexPage = () => {
 	const classes = useStyles();
+	const [checked, setChecked] = React.useState(true);
 	const [hovering, setHovering] = React.useState(false);
 	const [imageURL, setImageURL] = React.useState(undefined);
 	const [title, setTitle] = React.useState('Loading...');
 	const [imageTitle, setImageTitle] = React.useState('');
 	const cardRef = React.useRef(null);
+
+	const [classifier, setClassifier] = React.useState();
+
 	const [worker, setWorker] = React.useState();
 
 	useEffect(() => {
+		mobilenet.load().then((net) => {
+			console.log('MobileNet Loaded on Main Thread');
+			setTitle('Drag or paste an image in!');
+			setClassifier(net);
+		});
+	}, []);
+	useEffect(() => {
 		const newWorker = constructWebWorker('mobilenetworker.js', 'Worker');
 		newWorker.postMessage({ action: 'init' });
+
 		workerAction(newWorker, 'init').then(() => {
 			setWorker(newWorker);
-			setTitle('Drag or paste an image in!');
 		});
 	}, []);
 
@@ -79,7 +82,7 @@ const IndexPage = () => {
 				'paste',
 				function (pasteEvent) {
 					const items = pasteEvent.clipboardData.items;
-					processDataTransfer(items);
+					processDataTransfer(items, mainthreadpredict, webworkerpredict);
 				},
 				false
 			);
@@ -89,6 +92,37 @@ const IndexPage = () => {
 			dropbox.addEventListener('dragleave', dragleave, false);
 			dropbox.addEventListener('dragover', noopHandler, false);
 			dropbox.addEventListener('drop', drop, false);
+
+			async function mainthreadpredict(imageURL) {
+				console.log('main thread call');
+				let time = performance.now();
+				const imageElement = document.createElement('img');
+				imageElement.crossOrigin = 'Anonymous';
+				imageElement.onerror = (e) => setImageTitle('Dragged in non-CORS policy compliant image, try again');
+				return new Promise((resolve) => {
+					imageElement.onload = () =>
+						classifier
+
+							.classify(imageElement, 1)
+							.then((r) => {
+								console.log(`took ${performance.now() - time} ms`);
+								console.log(r);
+								setImageTitle(r[0].className);
+								resolve();
+							})
+							.catch((e) => console.error(e));
+					imageElement.src = imageURL;
+				});
+			}
+			async function webworkerpredict(imageURL) {
+				console.log('worker thread call');
+				let time = performance.now();
+				return workerAction(worker, 'predict', { imageURL }).then((message) => {
+					const { prediction } = message.data;
+					console.log(`took ${performance.now() - time} ms`);
+					setImageTitle(prediction);
+				});
+			}
 
 			function noopHandler(evt) {
 				evt.stopPropagation();
@@ -109,31 +143,40 @@ const IndexPage = () => {
 				let imageURL = evt.dataTransfer.getData('Text');
 				setImageURL(imageURL);
 
-				const image = new Image();
-				image.crossOrigin = 'Anonymous';
-				image.addEventListener('load', () => {
-					predictImage(image, worker).then((prediction) => setImageTitle(prediction));
-				});
-				image.addEventListener('error', () => {
-					setImageTitle('Not a pure image URL try again');
-				});
-
-				image.src = imageURL;
+				mainthreadpredict(imageURL).then(() => webworkerpredict(imageURL));
+			}
+		}
+		class workerCommand {
+			constructor(workerReceiver, action) {
+				this.workerReceiver = workerReceiver;
+				this.action = action;
+			}
+			async execute(payload) {
+				return await this.workerReceiver.dispatch(this.action, payload);
 			}
 		}
 
-		const processDataTransfer = function (items) {
+		class workerReceiver {
+			constructor(worker) {
+				this.worker = worker;
+			}
+
+			async dispatch(action, payload) {
+				await workerAction(this.worker, action, payload);
+			}
+		}
+
+		const processDataTransfer = function (items, mainthreadpredict, webworkerpredict) {
 			for (let i = 0; i < items.length; i++) {
 				if (items[i].kind === 'file') {
+					let time = performance.now();
 					const imageFile = items[i].getAsFile();
-					const imageURL = URL.createObjectURL(imageFile);
-					const image = new Image();
-					image.crossOrigin = 'Anonymous';
-					image.addEventListener('load', () => {
-						predictImage(image, worker).then((prediction) => setImageTitle(prediction));
-					});
 
-					image.src = imageURL;
+					const imageURL = URL.createObjectURL(imageFile);
+
+					console.log(checked);
+
+					mainthreadpredict(imageURL).then(() => webworkerpredict(imageURL));
 
 					setImageURL(imageURL);
 				}
@@ -141,8 +184,13 @@ const IndexPage = () => {
 		};
 	}, [cardRef, worker]);
 
+	function handleCheckChange() {
+		setChecked(!checked);
+	}
+
 	return (
 		<div style={{ alignContent: 'center' }}>
+			<CircularProgress></CircularProgress>
 			<Card ref={cardRef} className={classes.root}>
 				<CardHeader title="MobileNet Image Classifier" subheader={title} />
 				<CardMedia
