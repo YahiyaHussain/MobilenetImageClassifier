@@ -4,51 +4,36 @@
   </a>
 </p>
 <h1 align="center">
-  Gatsby minimal starter
+  Mobilenet Image Classifier
 </h1>
+
+<h3>
+  This app uses the TensorFlow.js MobileNet implementation to do prediction on images. You can copy paste images (control+c, control+v) or you can drag them in from a CORS permission enabled site. Stylized with Material UI card component. This app uses WebWorkers to segment out the MobileNet logic and maintain maximum UI responsiveness.
+ </h3
 
 ## 🚀 Quick start
 
-1.  **Create a Gatsby site.**
+1.  **Copy repo**
 
     Use the Gatsby CLI to create a new site, specifying the minimal starter.
 
     ```shell
-    # create a new Gatsby site using the minimal starter
-    npm init gatsby
+    git clone git@github.com:YahtzeeRage/MobilenetImageClassifier.git
     ```
 
-2.  **Start developing.**
+2.  **Install dependencies**
 
     Navigate into your new site’s directory and start it up.
 
     ```shell
-    cd my-gatsby-site/
-    npm run develop
+    cd MobilenetImageClassifier
+    yarn install
     ```
 
-3.  **Open the code and start customizing!**
-
+3.  **Start the app!**
+    ```shell
+    yarn start
+    ```
     Your site is now running at http://localhost:8000!
 
-    Edit `src/pages/index.js` to see your site update in real-time!
 
-4.  **Learn more**
-
-    - [Documentation](https://www.gatsbyjs.com/docs/?utm_source=starter&utm_medium=readme&utm_campaign=minimal-starter)
-
-    - [Tutorials](https://www.gatsbyjs.com/tutorial/?utm_source=starter&utm_medium=readme&utm_campaign=minimal-starter)
-
-    - [Guides](https://www.gatsbyjs.com/tutorial/?utm_source=starter&utm_medium=readme&utm_campaign=minimal-starter)
-
-    - [API Reference](https://www.gatsbyjs.com/docs/api-reference/?utm_source=starter&utm_medium=readme&utm_campaign=minimal-starter)
-
-    - [Plugin Library](https://www.gatsbyjs.com/plugins?utm_source=starter&utm_medium=readme&utm_campaign=minimal-starter)
-
-    - [Cheat Sheet](https://www.gatsbyjs.com/docs/cheat-sheet/?utm_source=starter&utm_medium=readme&utm_campaign=minimal-starter)
-
-## 🚀 Quick start (Gatsby Cloud)
-
-Deploy this starter with one click on [Gatsby Cloud](https://www.gatsbyjs.com/cloud/):
-
-[<img src="https://www.gatsbyjs.com/deploynow.svg" alt="Deploy to Gatsby Cloud">](https://www.gatsbyjs.com/dashboard/deploynow?url=https://github.com/gatsbyjs/gatsby-starter-minimal)
